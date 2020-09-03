@@ -1,3 +1,4 @@
+
 from app import app
 from flask import render_template,flash,redirect, request, url_for
 from werkzeug.utils import secure_filename
@@ -9,7 +10,7 @@ from app import MAX_FILE_SIZE
 @app.route('/index')
 def index():
     doc_path=os.path.abspath(os.path.dirname(__file__))+'/text.txt'
-    doc=open(doc_path,'r')
+    doc=open(doc_path,'r',encoding='utf-8')
     all_string=doc.read()
     string=re.sub(r'[^A-Za-z]', '', all_string).lower()
     result=dict(count_letter(string))
