@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>Cryptology</h1>
+    <table>
+        <tr>
+            <th>Letter</th>
+            <td>Count</td>
+        </tr>
+        {% for key, value in result.items() %}
+           <tr>
+                <th> {{ key }} </th>
+                <td> {{ value }} </td>
+           </tr>
+        {% endfor %}
+        </table>
+{% endblock %}
