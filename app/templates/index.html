@@ -2,16 +2,40 @@
 
 {% block content %}
     <h1>Cryptology</h1>
-    <table>
-        <tr>
-            <th>Letter</th>
-            <td>Count</td>
-        </tr>
-        {% for key, value in result.items() %}
-           <tr>
-                <th> {{ key }} </th>
-                <td> {{ value }} </td>
-           </tr>
-        {% endfor %}
-        </table>
+    <div class="split left">
+        <p>Sorted by Letters:</p>
+        <div class="centered">
+            <table>
+                <tr>
+                    <th>Letter</th>
+                    <td>Count</td>
+                </tr>
+                {% for key, value in result1.items() %}
+                <tr>
+                        <th> {{ key }} </th>
+                        <td> {{ value }} </td>
+                </tr>
+                {% endfor %}
+            </table>
+            <p>Total count of letters = {{total}}</p>
+        </div>
+    </div>
+    <div class="split right">
+        <p>Sorted by Count:</p>
+        <div class="centered">
+            <table>
+                <tr>
+                    <th>Letter</th>
+                    <td>Count</td>
+                </tr>
+                {% for key, value in result2.items() %}
+                <tr>
+                        <th> {{ key }} </th>
+                        <td> {{ value }} </td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+    </div>
+        
 {% endblock %}
