@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <p>Count each letter in text</p>
+    
+    <h3>Total count of letters = {{total}}</h3>
+    <h3>Sorted by Letters:</h3>
+    
+    <table class="center">
+        <tr>
+            <th>Letter</th>
+            <td>Count</td>
+        </tr>
+        {% for key, value in result1.items() %}
+        <tr>
+                <th> {{ key }} </th>
+                <td> {{ value }} </td>
+        </tr>
+        {% endfor %}
+    </table>
+    
+
+    <h3>Sorted by Count:</h3>
+    
+    <table class="center">
+        <tr>
+            <th>Letter</th>
+            <td>Count</td>
+        </tr>
+        {% for key, value in result2.items() %}
+        <tr>
+                <th> {{ key }} </th>
+                <td> {{ value }} </td>
+        </tr>
+        {% endfor %}
+    </table>
+        
+        
+{% endblock %}

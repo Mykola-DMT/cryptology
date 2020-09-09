@@ -1,6 +1,7 @@
 from app import app
 from flask import render_template,flash,redirect, request, url_for
 from werkzeug.utils import secure_filename
+from datetime import date,datetime
 import re
 import os
 from app import MAX_FILE_SIZE
@@ -9,6 +10,11 @@ from collections import OrderedDict
 @app.route('/')
 @app.route('/index')
 def index():
+    today=date.today()
+    return render_template('index.html',today=today)
+
+@app.route('/task1')
+def task1():
     doc_path=os.path.abspath(os.path.dirname(__file__))+'/text.txt'
     doc=open(doc_path,'r',encoding='utf-8')
     all_string=doc.read()
@@ -17,7 +23,7 @@ def index():
     sort_by_letter=OrderedDict(sorted(result.items()))
     sort_by_count=dict(sorted(result.items(), key=lambda x: x[1], reverse=True))
     total=total_count(result)
-    return render_template('index.html',result1=sort_by_letter,result2=sort_by_count,total=total)
+    return render_template('task1.html',result1=sort_by_letter,result2=sort_by_count,total=total)
 
 def count_letter(string):
     all_letter = {} 
