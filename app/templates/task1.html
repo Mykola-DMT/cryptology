@@ -2,14 +2,16 @@
 
 {% block content %}
     <p>Count each letter in text</p>
-    
+    <form action="" method="POST">
+        <button>Save result</button>
+    </form>
     <h3>Total count of letters = {{total}}</h3>
     <h3>Sorted by Letters:</h3>
     
     <table class="center">
         <tr>
             <th>Letter</th>
-            <td>Count</td>
+            <td>Count in %</td>
         </tr>
         {% for key, value in result1.items() %}
         <tr>
@@ -25,7 +27,7 @@
     <table class="center">
         <tr>
             <th>Letter</th>
-            <td>Count</td>
+            <td>Count in %</td>
         </tr>
         {% for key, value in result2.items() %}
         <tr>
