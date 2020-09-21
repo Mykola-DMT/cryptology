@@ -1,41 +1,24 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <p>Count each letter in text</p>
-    <form action="" method="POST">
-        <button>Save result</button>
+    <h4>Count each letter in text</h4>
+    <form method="POST">
+        <input name="text"/>
+        <input type="submit" value="input text" name="input"/>
     </form>
-    <h3>Total count of letters = {{total}}</h3>
-    <h3>Sorted by Letters:</h3>
+    <form action="" method="POST">
+        <input class="btn" type="submit" value="upload" name="upload file"/>
+        <input class="btn" type="submit" value="save" name="save results"/>
+        <input class="btn" type="submit" value="show" name='show text'/>
+    </form>
+    <h4>Sort by:</h4>
+    <form method="POST">
+        <input class="btn" type="submit" value="letter" name="sort by letters"/>
+        <input class="btn" type="submit" value="count" name="sort by count"/>
+    </form>
+    {% block table %}
+    {% endblock %}
     
-    <table class="center">
-        <tr>
-            <th>Letter</th>
-            <td>Count in %</td>
-        </tr>
-        {% for key, value in result1.items() %}
-        <tr>
-                <th> {{ key }} </th>
-                <td> {{ value }} </td>
-        </tr>
-        {% endfor %}
-    </table>
-    
-
-    <h3>Sorted by Count:</h3>
-    
-    <table class="center">
-        <tr>
-            <th>Letter</th>
-            <td>Count in %</td>
-        </tr>
-        {% for key, value in result2.items() %}
-        <tr>
-                <th> {{ key }} </th>
-                <td> {{ value }} </td>
-        </tr>
-        {% endfor %}
-    </table>
         
         
 {% endblock %}

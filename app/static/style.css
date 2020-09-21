@@ -1,6 +1,6 @@
 
 html {
-  background-color: #4f4f4f;
+  background-color: #443f49;
   
  }
  
@@ -16,13 +16,32 @@ html {
   font-size: 32px;
   font-weight: 600;
   text-transform: uppercase;
+  font-family:Impact, Charcoal, sans-serif;
   /* display:inline-block;
   margin: 40px 8px 10px 8px;  */
   color: #dddddd;
  }
  h3{
    text-align: center;
+   font-family: Comic Sans MS, Comic Sans, cursive;
  }
+ .btn{
+  color:#999;
+  background:rgba(0, 0, 0, 0.5);
+  padding:10px 10px;
+  font-size:10px;
+  text-decoration:none;
+  letter-spacing:2px;
+  text-transform:uppercase;
+}
+
+.btn:hover{
+  border:none;
+  background:rgba(0, 0, 0, 0.4);
+  background:#fff;
+  padding:10px 10px;
+  color:#1b1b1b;
+}
  table.center {
   margin-left: auto; 
   margin-right: auto;
@@ -33,3 +52,4 @@ html {
     vertical-align: top;
     color: #dddddd;
   }
+

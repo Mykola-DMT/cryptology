@@ -7,14 +7,11 @@
     <body>
         <nav>
             App: 
-            <a href="/index">Home</a>
-            <a href="{{ url_for('task1') }}">task1</a>
+            <a href="/index" class="btn">Home</a>
+            <a href="{{ url_for('task1') }}" class="btn">task1</a>
             
         </nav>
         <hr>
-        <div class="container">
-            {% block content %}{% endblock %}
-        </div>
         {% with messages = get_flashed_messages() %}
         {% if messages %}
         <ul>
@@ -24,5 +21,8 @@
         </ul>
         {% endif %}
         {% endwith %}
+        <div class="container">
+            {% block content %}{% endblock %}
+        </div>
     </body>
 </html>
