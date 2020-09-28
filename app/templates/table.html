@@ -1,13 +1,31 @@
+{% if task == 1 %}
 {% extends "task1.html" %}
 
+{% elif task == 2 %}
+{% extends "task2.html" %}
+
+{% elif task == 21 %}
+{% extends "change_table.html" %}
+
+{% endif %}
+
+
 {% block table %}
+
+{% if task == 2 %}
+<form method="POST">
+    <input class="btn" type="submit" value="change" name="change ltr"/>
+</form>
+{% endif %}
+
 <h3>Total count of letters = {{total}}</h3>
-    
+{% if task == 1 %}
 <h3>Sorted by {{text}}:</h3>
+{% endif %}
 <table class="center">
     <tr>
         <th>Letter</th>
-        <td>Count in %</td>
+        <td>{{value}}</td>
     </tr>
     {% for key, value in result1.items() %}
     <tr>

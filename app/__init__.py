@@ -9,4 +9,4 @@ app.secret_key='you-will-never-guess'
 app.config['UPLOAD_FOLDER']=UPLOAD_FOLDER
 main_string='.'
 
-from app import routes
+from app import routes, forms

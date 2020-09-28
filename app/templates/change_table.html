@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block content %}
+<p>
+    Letter:
+    <form method="POST">
+        <input name="ltr" style="width: 30px;"/>
+        <input type="submit" value="input text" name="in ltr"/>
+    </form>
+    <span style='font-size:50px;'>&#8595;</span>
+    <br>
+    Ciphered:
+    <form method="POST">
+        <input name="cr ltr" style="width: 30px;"/>
+        <input type="submit" value="input text" name="in cr ltr"/>
+    </form>
+</p>
+    <form method="POST">
+        <input class="btn" type="submit" value="change" name="change"/>
+    </form>
+
+    <table class="center">
+        <tr>
+            <th>Letter</th>
+            <td>{{value}}</td>
+        </tr>
+        {% for key, value in result1.items() %}
+        <tr>
+                <th> {{ key }} </th>
+                <td> {{ value }} </td>
+        </tr>
+        {% endfor %}
+    </table>
+    <form action="" method="POST">
+        <input class="btn" type="submit" value="save" name="save table"/>
+    </form>
+{% endblock %}
