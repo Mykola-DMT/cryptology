@@ -11,8 +11,10 @@ import ast
 
 main_string='.'
 key=0
+file_string = '.'
 
 @app.route('/')
+@app.route('/home')
 @app.route('/index')
 def index():
     today=date.today()
@@ -20,7 +22,7 @@ def index():
 
 @app.route('/upload',methods=['GET','POST'])
 def upload():
-    global main_string
+    global main_string, file_string
     if request.method=='POST':
         if 'file' not in request.files:
             flash('No file Part')
@@ -34,7 +36,8 @@ def upload():
             f.save(os.path.join(app.config['UPLOAD_FOLDER'],filename))
             f.seek(0)
             string=f.read()
-            main_string=str(string,'utf-8')
+            main_string = str(string,'utf-8')
+            file_string = str(string,'utf-8')
             #main_string=str(f.read(),'utf-8')
             return redirect('/')
     return render_template('upload.html')
@@ -91,7 +94,7 @@ def task2():
             return render_template('table.html', task=2, key=key, before = main_string, after = after, result1=result, text=s_type, total=total, value='Decrypted')
 
         elif request.form.get('encrypt') == 'encrypt':
-            if main_string != '.' and key != 0:
+            if main_string != '.':
                 k=1
                 s_type='Encrypt'
                 after=smpl_repl(main_string,s_type)
@@ -101,7 +104,7 @@ def task2():
                 flash('There are empty fields!')
 
         elif request.form.get('decrypt')=='decrypt':
-            if main_string != '.' and key != 0:
+            if main_string != '.':
                 k=2
                 s_type='Decrypt'
                 after=smpl_repl(main_string,s_type)
@@ -146,6 +149,59 @@ def task1():
     return render_template('task1.html')
 
 
+@app.route('/task3', methods=['GET','POST'])
+def task3():
+    global main_string, file_string
+    after = '.'
+    freq_dict=get_dict('by_letter',file_string)
+    if request.method=='POST':
+
+        if request.form.get('upload file') == 'upload':
+            return redirect(url_for('upload'))
+
+        elif request.form.get('show text') == 'show':
+            return redirect(url_for('show'))
+
+        elif request.form.get('undo text') == 'reset':
+
+            main_string = file_string
+
+        elif request.form.get('decrypt') == 'decrypt':
+            s_type='Decrypt'
+            after=smpl_repl(main_string,s_type)
+            save_string(after)
+            main_string = after
+        elif request.form.get('change ltr') == 'change':
+            result=get_dict_from_json()
+            return redirect(url_for('change_table'))
+
+        elif request.form.get('show table') == 'table':
+            string = re.sub(r'[^A-Za-z]', '', main_string).lower()
+            #after=smpl_repl(main_string,'Decrypt')
+            result=get_dict_from_json()
+            total=len(string)
+            #save(result)
+            return render_template('table.html', task=3, key=key,content=file_string,content1=main_string, result1=result, text='Decrypt', total=total, value='Decrypted', result2=freq_dict)
+    return render_template('task3.html',content=file_string,content1=after,result2=freq_dict)
+            
+
+def dict_freq_repl():
+    global main_string
+    Ef='etaoinsrhldcumfpgwybvkxjqz'.upper()
+    
+    ch_d = get_dict('by_count',main_string)
+    key_list = list(ch_d.keys())
+    dic = {}
+    i=0
+    for s in Ef:
+        dic[s]=key_list[i]
+        i += 1
+    result = dict(OrderedDict(sorted(dic.items())))
+    save(result)
+    return result
+
+
+
 w1 = '.'
 w2 = '.'
 a_w = '.'
@@ -170,11 +226,11 @@ def change_table():
 
             elif request.form.get('save table') == 'save':
                 save(d)
-                return redirect(url_for('task2'))
+                return redirect('/')
                 
     else:
         flash('Please Input message and key')
-        return redirect(url_for('task2'))
+        return redirect('/')
 
     save(d)
     return render_template('change_table.html',value='Cipher',result1=d)
@@ -183,7 +239,7 @@ def change_table():
 # dict:  letters -> count
 def get_dict(typ,text):
     #text=str(text,'utf-8')
-    string=re.sub(r'[^A-Za-z]', '', text).lower()
+    string=re.sub(r'[^A-Za-z]', '', text).upper()
     result_no_percent=dict(count_letter(string))
     total=total_count(result_no_percent)
     result=letter_percent(result_no_percent,total)
@@ -253,6 +309,7 @@ def save_string(string):
 
 @app.route('/show')
 def show():
+    global main_string
     content = main_string
     return render_template('show.html',content=content)
 
@@ -272,7 +329,7 @@ def count_letter(string):
 
 def letter_percent(letters,total):
     for i in letters.keys():
-        letters[i]=round(letters[i]/total,4)
+        letters[i]=round(letters[i]/total,3)
         #letters[i]/=total
     return letters
 

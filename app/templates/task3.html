@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h3>Task 3</h3>
+    <h4>Frequency analysis</h4>
+    <form action="" method="POST">
+        <input class="btn" type="submit" value="upload" name="upload file"/>
+        <input class="btn" type="submit" value="reset" name='undo text'/>
+        <!-- <input class="btn" type="submit" value="save" name="save results"/> -->
+    </form>
+    <h4>Inputed text:</h4>
+    <textarea class="show_box_1" rows="12" cols="80">
+        {{content}}
+    </textarea>
+    <br>
+    <table class="center">
+        <tr>
+            {% for key in result2.keys() %}
+                <th> {{ key }} </th>   
+            {% endfor %}
+        </tr>
+
+        <tr>
+            {% for value in result2.values() %}
+                <td> {{ value }} </td>
+            {% endfor %}
+        </tr>
+    </table>
+
+    <h4>What to do:</h4>
+    <form method="POST">
+        <input class="btn" type="submit" value="decrypt" name="decrypt"/>
+        <input class="btn" type="submit" value="show" name='show text'/>
+    </form>
+    <h4>
+        Text after decryption:
+    </h4>
+    <textarea class="show_box_1" rows="12" cols="80">
+        {{content1}}
+    </textarea>
+    <p></p>
+    <form action="" method="POST">
+        <input class="btn" type="submit" value="table" name='show table'/>
+    </form>
+
+    {% block table %}
+    {% endblock %}
+        
+    <br>
+        
+{% endblock %}

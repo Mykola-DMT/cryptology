@@ -1,6 +1,6 @@
 
 html {
-  background-color: #443f49;
+  background-color: #616e75;
   
  }
  
@@ -35,7 +35,18 @@ html {
   letter-spacing:2px;
   text-transform:uppercase;
 }
-
+.show_box{
+  margin-left: 2%;
+  font-size: 15px;
+  width:95%; 
+  border: 1px solid black;
+  word-wrap: break-word;
+}
+.show_box_1{
+  margin-left: auto;
+  margin-right: auto;
+  display: block;
+}
 .btn:hover{
   border:none;
   background:rgba(0, 0, 0, 0.4);

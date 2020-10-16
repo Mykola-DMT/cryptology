@@ -1,11 +1,9 @@
 {% extends "base.html" %}
 
 {% block content %}
-<form method="POST">
-    <input class="btn" type="submit" value="back" name="sort by letters"/>
-</form>
-<pre>
-    {{content}}
-</pre>
-
+<div class = 'show_box'>
+   <p contenteditable="true">
+      {{content}}
+   </p>
+</div>
 {% endblock %}

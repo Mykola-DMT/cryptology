@@ -7,12 +7,15 @@
 {% elif task == 21 %}
 {% extends "change_table.html" %}
 
+{% elif task == 3 %}
+{% extends "task3.html" %}
+
 {% endif %}
 
 
 {% block table %}
 
-{% if task == 2 %}
+{% if task == 2 or task == 3 %}
 <form method="POST">
     <input class="btn" type="submit" value="change" name="change ltr"/>
 </form>
@@ -23,16 +26,21 @@
 <h3>Sorted by {{text}}:</h3>
 {% endif %}
 <table class="center">
+    
     <tr>
         <th>Letter</th>
-        <td>{{value}}</td>
-    </tr>
-    {% for key, value in result1.items() %}
-    <tr>
+        {% for key in result1.keys() %}
             <th> {{ key }} </th>
-            <td> {{ value }} </td>
+            
+        {% endfor %}
     </tr>
-    {% endfor %}
+    <tr>
+        <td>{{value}}</td>
+        {% for  value in result1.values() %}
+            
+            <td> {{ value }} </td>
+        {% endfor %}
+    </tr>
 </table>
 
 {% endblock %}
