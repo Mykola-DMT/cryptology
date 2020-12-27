@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+
+
+    <h3>Task 7</h3>
+    <h3>ElGamal</h3>
+    <fieldset style="width: 25%;">
+        <p>Input message:</p>
+        <form method="POST">
+            <input name="message"/>
+            <input type="submit" value="input text" name="in message"/>
+        </form>
+        <p>or upload it:</p>
+        <form action="" method="POST">
+            <input class="btn" type="submit" value="upload" name="upload file"/>
+        </form>
+    </fieldset>
+    <fieldset style="width: 25%;">
+        <p>(Optional)</p>
+        <p>Input P and G <br> (P must be primary number and G must be in [1, p-1]):</p>
+        <form method="POST">
+            <input name="primaryP"/>
+            <input type="submit" value="input text" name="P"/>
+        </form>
+        <form method="POST">
+            <input name="primaryG"/>
+            <input type="submit" value="input text" name="G"/>
+        </form>
+        <p>or upload it:</p>
+        <form action="" method="POST">
+            <input class="btn" type="submit" value="upload" name="upload pq"/>
+        </form>
+        <form method="POST">
+            <input class="btn" type="submit" value="generate" name="generate key"/>
+        </form>
+        <p>P = {{ p }}</p>
+        <p>Q = {{ g }}</p>
+        <p>H = {{ h }}</p>
+        <p>A = {{ a }}</p>
+    </fieldset>
+    <fieldset style="width: 25%;">
+        <p>Public Key:</p>
+        <p>(Separate numbers with ',')</p>
+        <form method="POST">
+            <input name="key"/>
+            <input type="submit" value="input text" name="Public"/>
+        </form>
+        <p>or upload it:</p>
+        <form method="POST">
+            <input class="btn" type="submit" value="upload" name="upload public"/>
+        </form>
+        <p>Public Key: {{Public}}</p>
+        <p>Encrypt:</p>
+        <form method="POST">
+            <input class="btn" type="submit" value="verify" name="verify"/>
+        </form>
+    </fieldset>
+    <!-- <h4>Key:{{ key }}</h4> -->
+    <fieldset style="width: 25%;">
+        <p>Private Key:</p>
+        <p>(Separate numbers with ',')</p>
+        <form method="POST">
+            <input name="key"/>
+            <input type="submit" value="input text" name="Public"/>
+        </form>
+        <p>or upload it:</p>
+        <form method="POST">
+            <input class="btn" type="submit" value="upload" name="upload private"/>
+        </form>
+        <p>Private Key: {{Private}}</p>
+        <p>Decrypt:</p>
+        <form method="POST">
+            <input class="btn" type="submit" value="sign" name="sign"/>
+        </form>
+    </fieldset>
+    <fieldset style="width: 25%;">
+        <h4>Messages:</h4>
+        <p>Before:</p>
+        <p> {{before}}</p>
+        <p>Key: {{key}}</p>
+        <p>Result:</p>
+        <p>{{after}}</p>
+        <p></p>
+    </fieldset>
+        
+{% endblock %}

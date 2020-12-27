@@ -7,7 +7,10 @@ import json
 import os
 from app import MAX_FILE_SIZE,ALLOWED_EXTENSIONS,UPLOAD_FOLDER
 from collections import OrderedDict
-import ast
+#import ast
+import string
+import random
+
 
 main_string='.'
 key=0
@@ -32,15 +35,39 @@ def upload():
             flash('not selected file')
             return redirect('/')
         if f and allowed_file(f.filename):
-            filename= secure_filename(f.filename) 
+            filename = secure_filename(f.filename) 
             f.save(os.path.join(app.config['UPLOAD_FOLDER'],filename))
             f.seek(0)
             string=f.read()
-            main_string = str(string,'utf-8')
-            file_string = str(string,'utf-8')
+            main_string = str(string,'utf-8').upper()
+            main_string = main_string.replace(' ','')
+            file_string = str(string,'utf-8').upper()
             #main_string=str(f.read(),'utf-8')
             return redirect('/')
     return render_template('upload.html')
+
+@app.route('/upload_key',methods=['GET','POST'])
+def upload_key():
+    global key
+    if request.method=='POST':
+        if 'file' not in request.files:
+            flash('No file Part')
+            return redirect('/')
+        f = request.files['file']
+        if f.filename == '':
+            flash('not selected file')
+            return redirect('/')
+        if f and allowed_file(f.filename):
+            filename = secure_filename(f.filename) 
+            f.save(os.path.join(app.config['UPLOAD_FOLDER'],filename))
+            f.seek(0)
+            string=f.read()
+            key = str(string,'utf-8')
+            #save_key(key)
+            #main_string=str(f.read(),'utf-8')
+            return redirect(url_for('index'))
+    return render_template('upload.html')
+
 
 k=0
 @app.route('/task2', methods=['GET','POST'])
@@ -183,7 +210,490 @@ def task3():
             #save(result)
             return render_template('table.html', task=3, key=key,content=file_string,content1=main_string, result1=result, text='Decrypt', total=total, value='Decrypted', result2=freq_dict)
     return render_template('task3.html',content=file_string,content1=after,result2=freq_dict)
+
+@app.route('/task4', methods=['GET','POST'])
+def task4():
+    global main_string,key
+    
+    if request.method=='POST':
+        if request.form.get('upload file') == 'upload':
+            return redirect(url_for('upload'))
+
+        elif request.form.get('in message') == 'input text':
+            main_string = request.form['message'].upper() 
+        
+        elif request.form.get('in key') == 'input text':
+            key_text = request.form['key'].upper()
+            key = VigenerKey(main_string,key_text)
+            #save(get_dict_repl(key)) 
+
+        elif request.form.get('upload key') == 'upload':
+            return redirect(url_for('upload_key')) 
+
+        elif request.form.get('encrypt') == 'encrypt':
+            if main_string != '.' and len(key)<=len(main_string):
+                
+                key = VigenerKey(main_string,key)
+                after = cipherVigener(main_string,key)
+                #main_string = after
+                save_string(after)
+                return render_template('task4.html',key=key, before = main_string, after = after)
+            else:
+                flash('There are empty fields or something wrong!')
+
+        elif request.form.get('decrypt')=='decrypt':
+            if main_string != '.'and len(key)<=len(main_string):
+                key = VigenerKey(main_string,key)
+                after = ViginerDecrypt(main_string,key)
+                save_string(after)
+                return render_template('task4.html',key=key, before = main_string, after = after)
+            else:
+                flash('There are empty fields or something wrong!')
+    return render_template('task4.html')  
+
+@app.route('/task5', methods=['GET','POST'])
+def task5():
+    global main_string,key
+    _key = ''
+    if request.method=='POST':
+        if request.form.get('upload file') == 'upload':
+            return redirect(url_for('upload'))
+
+        elif request.form.get('in message') == 'input text':
+            main_string = request.form['message'].upper() 
+            main_string = main_string.replace(' ','')
+
+        elif request.form.get('upload key') == 'upload':
+            return redirect(url_for('upload_key')) 
+
+        elif request.form.get('in key') == 'input text':
+            key_text = request.form['key'].upper()
+            key_text = key_text.replace(' ','')
+            if len(key_text) < len(main_string):
+                flash('The length of the key(%s) must be at least the length of the string(%s)!'%(len(key_text),len(main_string)))
+            else:
+                key = key_text
+        
+        elif request.form.get('generate key') == 'generate':
+            length = len(main_string)
+            if length == 0:
+                flash('Input message first!!!')
+            else:
+                key = get_random_string(length) 
+                #save_key(key)
+
+        elif request.form.get('encrypt') == 'encrypt':
+            if main_string != '.' and len(key)>=len(main_string):
+                after = cipherOTP(main_string,key)
+                save_string(after)
+                save_key(key)
+                return render_template('task5.html',key=key, before = main_string, after = after)
+            else:
+                flash('There are empty fields or something wrong!')
+
+        elif request.form.get('decrypt')=='decrypt':
+            if main_string != '.'and len(key)>=len(main_string):
+                after = decryptOTP(main_string,key)
+                save_string(after)
+                save_key(key)
+                return render_template('task5.html',key=key, before = main_string, after = after)
+            else:
+                flash('There are empty fields or something wrong!')
+
+    return render_template('task5.html', key = key, before = main_string)  
+
+#######################Task 6(RSA)############################
+
+def prime_check(a):
+    if(a==2):
+        return True
+    elif((a<2) or ((a%2)==0)):
+        return False
+    elif(a>2):
+        for i in range(2,a):
+            if not(a%i):
+                return False
+    return True
+
+def gcd_e(e,r):
+    while(r!=0):
+        e,r=r,e%r
+    return e
+ 
+#Extended Euclidean Algorithm
+def eea(a,b):
+    if(a%b==0):
+        return(b,0,1)
+    else:
+        gcd,s,t = eea(b,a%b)
+        s = s-((a//b) * t)
+        return(gcd,t,s)
+
+def mult_inv(e,r):
+    gcd,s,_ = eea(e,r)
+    if(gcd!=1):
+        return None
+    else:
+        return s % r
+
+def encrypt_rsa(pub_key,n_text):
+    e,n=pub_key
+    x=[]
+    m=0
+    for i in n_text:
+        if(i.isupper()):
+            m = ord(i)-65
+            c=(m**e)%n
+            x.append(c)
+        # elif(i.islower()):               
+        #     m= ord(i)-97
+        #     c=(m**e)%n
+        #     x.append(c)
+        elif(i.isspace()):
+            #spc=400
+            x.append(400)
+    return x
+
+def decrypt_rsa(prvt_key,c_text):
+    d,n=prvt_key
+    txt=c_text.split(',')
+    x=''
+    m=0
+    for i in txt:
+        if(i=='400'):
+            x+=' '
+        else:
+            m=(int(i)**d)%n
+            m+=65
+            c=chr(m)
+            x+=c
+    return x
+
+publicKey=0
+privateKey=0
+P=0
+Q=0
+@app.route('/task6', methods=['GET','POST'])
+def task6():
+    global main_string,key, publicKey, privateKey, P, Q
+
+    if request.method=='POST':
+        if request.form.get('upload file') == 'upload':
+            return redirect(url_for('upload'))
+
+        elif request.form.get('in message') == 'input text':
+            main_string = request.form['message'].upper() 
+            #main_string = main_string.replace(' ','')
+
+        elif request.form.get('P') == 'input text':
+            key = 0
+            try_p = int(request.form['primaryP'])
+            if prime_check(try_p):
+                P = try_p
+            else:
+                flash('P must be a primary number!')
+
+        elif request.form.get('Q') == 'input text':
+            key = 0
+            try_q = int(request.form['primaryQ'])
+            if prime_check(try_q):
+                Q = try_q
+            else:
+                flash('Q must be a primary number!')
+
+        elif request.form.get('upload pq') == 'upload':
+            return redirect(url_for('upload_key')) 
+
+        elif request.form.get('upload public') == 'upload':
+            return redirect(url_for('upload_key')) 
+
+        elif request.form.get('upload private') == 'upload':
+            return redirect(url_for('upload_key')) 
+
+        elif request.form.get('Public') == 'input text':
+            key_text = request.form['key'].upper()
+            key_text = key_text.split(',')
             
+            if len(key_text) == 2:
+                publicKey = tuple(int(x) for x in key_text)
+            else:
+                flash('Public Key must containt only 2 numbers!')
+        
+        elif request.form.get('Private') == 'input text':
+            key_text = request.form['key'].upper()
+            key_text = key_text.split(',')
+            
+            if len(key_text) == 2:
+                privateKey = tuple(int(x) for x in key_text)
+            else:
+                flash('Private Key must containt only 2 numbers!')
+
+        elif request.form.get('generate key') == 'generate':
+            if key != 0:
+                key = tuple(int(x) for x in key)
+                P = key[0]
+                Q = key[1] 
+            n = P * Q
+            r = (P-1)*(Q-1)
+            for i in range(1,1000):
+                if(gcd_e(i,r)==1):
+                    e=i
+                    
+            d = mult_inv(e,r)
+
+            publicKey = (e,n)
+            privateKey = (d,n)
+
+            savePrivateKey(privateKey)
+            savePulicKey(publicKey)
+
+        elif request.form.get('encrypt') == 'encrypt':
+            if main_string != '.' and publicKey != 0:
+                after = encrypt_rsa(publicKey, main_string)
+                save_string(after)
+                return render_template('task6.html',key=publicKey, before = main_string, after = after)
+            else:
+                flash('There are empty fields or something wrong!')
+
+        elif request.form.get('decrypt')=='decrypt':
+            if main_string != '.'and privateKey != 0:
+                after = decrypt_rsa(privateKey, main_string)
+                save_string(after)
+                return render_template('task6.html',key=key, before = main_string, after = after)
+            else:
+                flash('There are empty fields or something wrong!')
+
+    return render_template('task6.html', Public=publicKey, Private=privateKey ,before = main_string, p = P, q = Q) 
+
+
+#######################Task 7(ElGamal)############################
+def hashed(message, p):
+    h=[]
+    h.append(len(message))
+    n=[ord(message[i])-65 for i in range(len(message))]
+    
+    for i in range(1,len(message)+1):
+        h.append(((h[i-1] + n[i-1]) ** 2) % p)
+    
+    return h[len(h)-1]
+
+def gcd(a, b): 
+    if a < b: 
+        return gcd(b, a) 
+    elif a % b == 0: 
+        return b; 
+    else: 
+        return gcd(b, a % b) 
+
+def mod(g,x,p):
+    res = int(pow(g,x)%p)
+    return res
+
+def sign(message, publicKey):
+    p = publicKey[0]
+    g = publicKey[1]
+    a = publicKey[2]
+    M = hashed(message, p)
+    r = random.randint(1, p)
+
+    while (gcd(r,p-1) != 1):
+        r = random.randint(1, p)
+    
+
+    s1 = mod(g, r, p)
+    u = mult_inv(r,p-1)
+    
+    s2 = ((M - a*s1) * u) % (p - 1)
+    Signed = (message, s1, s2)
+    return Signed
+
+def verify_sign(Signed ,publicKey):
+    m = hashed(Signed[0], publicKey[0])
+    left_s = mod(publicKey[1], m, publicKey[0])
+    
+    right_s = (pow(publicKey[2], int(Signed[1])) * pow(int(Signed[1]), int(Signed[2]))) % publicKey[0]
+    if(left_s == right_s):
+        print('Verified')
+        return True
+    else:
+        print('verification failed')
+        return False
+
+publicKey=0
+privateKey=0
+P=0
+G=0
+H=0
+A=0
+@app.route('/task7', methods=['GET','POST'])
+def task7():
+    global main_string,key, publicKey, privateKey, P, G, H, A
+
+    if request.method=='POST':
+        if request.form.get('upload file') == 'upload':
+            return redirect(url_for('upload'))
+
+        elif request.form.get('in message') == 'input text':
+            main_string = request.form['message'].upper() 
+            #main_string = main_string.replace(' ','')
+
+        elif request.form.get('P') == 'input text':
+            key = 0
+            try_p = int(request.form['primaryP'])
+            if prime_check(try_p):
+                P = try_p
+               
+            else:
+                flash('P must be a primary number!')
+
+        elif request.form.get('G') == 'input text':
+            key = 0
+            try_g = int(request.form['primaryG'])
+            if 1 <= try_g < P:
+                G = try_g
+                
+            else:
+                flash('G must be in [1, p-1]')
+
+        elif request.form.get('upload pq') == 'upload':
+            return redirect(url_for('upload_key')) 
+
+        elif request.form.get('upload public') == 'upload':
+            return redirect(url_for('upload_key')) 
+
+        elif request.form.get('upload private') == 'upload':
+            return redirect(url_for('upload_key')) 
+
+        elif request.form.get('Public') == 'input text':
+            key_text = request.form['key'].upper()
+            key_text = key_text.split(',')
+            
+            if len(key_text) == 3:
+                publicKey = tuple(int(x) for x in key_text)
+            else:
+                flash('Public Key must containt only 3 numbers!')
+        
+        elif request.form.get('Private') == 'input text':
+            key_text = request.form['key'].upper()
+            key_text = key_text.split(',')
+            
+            if len(key_text) == 3:
+                privateKey = tuple(int(x) for x in key_text)
+            else:
+                flash('Private Key must containt only 3 numbers!')
+
+        elif request.form.get('generate key') == 'generate':
+            if key != 0:
+                key = key.split(',')
+                key = tuple(int(x) for x in key)
+                P = key[0]
+                G = key[1]
+            
+            A = random.randint(1, P)
+            H = mod(G, A, P)
+
+            while(A == H):
+                A = random.randint(1, P) 
+                H = mod(G, A, P)
+
+
+            publicKey = (P, G, H)
+            privateKey = (P, G, A)
+
+            savePrivateKey(privateKey)
+            savePulicKey(publicKey)
+
+
+        elif request.form.get('sign') == 'sign':
+            if key != 0 and isinstance(key, str):
+                key = key.split(',')
+                privateKey = tuple(int(x) for x in key)
+            if main_string != '.' and privateKey != 0:
+                after = sign(main_string, privateKey)
+                save_signed(after)
+                return render_template('task7.html',key=privateKey, before = main_string, after = after)
+            else:
+                flash('There are empty fields or something wrong!')
+
+        elif request.form.get('verify')=='verify':
+            if key != 0 and isinstance(key, str):
+                key = key.split(',')
+                publicKey = tuple(int(x) for x in key)
+                
+            if main_string != '.'and publicKey != 0:
+                signed = main_string.split(',')
+                verify = verify_sign(signed, publicKey)
+                if(verify):
+                    after = 'Signature verification successful, signature Valid'
+                    flash('Signature verification successful, signature Valid')
+                else:
+                    after = 'Signature verification successful, signature Invalid'
+                    flash('Signature verification successful, signature Invalid')
+                save_string(after)
+                return render_template('task7.html',key=publicKey, before = main_string, after = after)
+            else:
+                flash('There are empty fields or something wrong!')
+
+    return render_template('task7.html', Public=publicKey, Private=privateKey ,before = main_string, p = P, g = G, h=H, a=A) 
+
+
+
+def cipherOTP(string,key):
+    cipher_text = []
+    for i in range(len(string)):
+        s = (ord(string[i]) - ord('A'))
+        k = (ord(key[i]) - ord('A')) 
+        x = (s ^ k)
+        x += ord('A') 
+        cipher_text.append(chr(x)) 
+    return("" . join(cipher_text))
+
+def decryptOTP(cipher_text,key):
+    orig_text = [] 
+    for i in range(len(cipher_text)): 
+        c=(ord(cipher_text[i]) - ord('A')) 
+        k=(ord(key[i]) - ord('A')) 
+        x = (c ^ k)           
+        x += ord('A') 
+        orig_text.append(chr(x)) 
+    return("" . join(orig_text)) 
+
+
+def VigenerKey(string, key): 
+    key = list(key) 
+    if len(string) == len(key): 
+        return(key) 
+    else: 
+        for i in range(len(string) - len(key)): 
+            key.append(key[i % len(key)]) 
+
+    #return str(key)
+    return("" . join(key)) 
+
+# def cipherOTP(string,key):
+#     cipher_text = []
+#     for i in range(len(string)):
+#         x = (ord(string[i]) + ord(key[i])) % 26
+#         x += ord('A') 
+#         cipher_text.append(chr(x)) 
+#     return("" . join(cipher_text))
+
+def cipherVigener(string, key): 
+    #string = string.replace(' ','')
+    cipher_text = [] 
+    for i in range(len(string)): 
+        x = (ord(string[i]) + ord(key[i])) % 26
+        x += ord('A') 
+        cipher_text.append(chr(x)) 
+    return("" . join(cipher_text)) 
+
+def ViginerDecrypt(cipher_text, key): 
+    orig_text = [] 
+    for i in range(len(cipher_text)): 
+        x = (ord(cipher_text[i]) - ord(key[i]) + 26) % 26
+        x += ord('A') 
+        orig_text.append(chr(x)) 
+    return("" . join(orig_text)) 
 
 def dict_freq_repl():
     global main_string
@@ -253,6 +763,11 @@ def get_dict(typ,text):
 
     return result
 
+def get_random_string(length):
+    letters = string.ascii_uppercase
+    result_str = ''.join(random.choice(letters) for i in range(length))
+    return result_str
+
 # dict:  letters -> new_letter(crypto)
 def get_dict_repl(key):
     result = {}
@@ -303,9 +818,40 @@ def save(letters):
     flash('Succesfuly saved!')
 
 def save_string(string):
-    with open('cipher.txt','w') as outfile:
-        outfile.write(string)
-         
+    if isinstance(string,list):
+        with open('cipher.txt','w') as outfile:
+            outfile.write(','.join(str(i) for i in string))
+            outfile.close()
+    else:
+        with open('cipher.txt','w') as outfile:
+            outfile.write(string)
+            outfile.close()
+
+def save_signed(signed):
+    with open('signedText.txt','w') as outfile:
+        outfile.write(','.join(str(i) for i in signed))
+        outfile.close()
+
+def savePulicKey(PubK):
+    with open('publicKey.txt','w') as outfile:
+        outfile.write(','.join(str(i) for i in PubK))
+        outfile.close()
+
+def savePrivateKey(PrvtK):
+    with open('privateKey.txt','w') as outfile:
+        outfile.write(','.join(str(i) for i in PrvtK))
+        outfile.close()
+
+def save_key(string):
+    #s = string.upper()
+    if isinstance(string,tuple) or isinstance(string,list) :
+        with open('key_string.txt','w') as outfile:
+            outfile.write(','.join(str(i) for i in string))
+            outfile.close()
+    else: 
+        with open('key_string.txt','w') as outfile:
+            outfile.write(string)         
+            outfile.close()
 
 @app.route('/show')
 def show():
